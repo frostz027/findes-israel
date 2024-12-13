@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img class="logo" src="logo.png" alt="logo">
+            <div class="user-info">
+    
+                <i class="fas fa-user-circle"></i>
+                <i class="fas fa-cog"></i>
+    
+            </div>
+        </header>
+        <aside class="sidebar">
+            <nav>
+                <div class="menu-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>Mensagens</span>
+                </div>
+                <div class="menu-item">
+                    <i class="fas fa-file-contract"></i>
+                    <span>Contratos</span>
+                </div>
+                <div class="menu-item">
+                    <i class="fas fa-bell"></i>
+                    <span>Solicitações</span>
+                </div>
+                <div class="menu-item">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Desempenho</span>
+                </div>
+                <div class="menu-item">
+                    <i class="fas fa-search"></i>
+                    <span>Consultas</span>
+                </div>
+            </nav>
+        </aside>
+        <main>
+            <div class="breadcrumbs">
+                Você está aqui > Página Inicial > <span>Contratos</span>
+            </div>
+        <div class="cards">
+            <div class="card">
+                <p class="number">1</p>
+                <p>Contratos</p>
+            </div>
+            <div class="card">
+                <p class="number">0</p>
+                <p>Contratos Válidos</p>
+            </div>
+            <div class="card">
+                <p class="number">0</p>
+                <p>Contratos Expirados</p>
+            </div>
+        </div>
+        <div class="panels">
+            <div class="panel full-width-bar">
+                <div class="panel-header">Seus contratos</div>
+                <div class="panel-content"></div>
+            </div>
+            <div class="panel">
+                <div class="panel-header">Notificações</div>
+                <div class="panel-content">Você não possui nenhuma notificação.</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
