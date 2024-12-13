@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitações</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img class="logo" src="logo.png" alt="logo">
+            <div class="user-info">
+    
+                <i class="fas fa-user-circle"></i>
+                <i class="fas fa-cog"></i>
+    
+            </div>
+        </header>
+        <aside class="sidebar">
+            <nav>
+                <div class="menu-item">
+                    <i class="fas fa-envelope"></i>
+                    <span>Mensagens</span>
+                </div>
+                <div class="menu-item">
+                    <i class="fas fa-file-contract"></i>
+                    <span>Contratos</span>
+                </div>
+                <div class="menu-item">
+                    <i class="fas fa-bell"></i>
+                    <span>Solicitações</span>
+                </div>
+                <div class="menu-item">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Desempenho</span>
+                </div>
+                <div class="menu-item">
+                    <i class="fas fa-search"></i>
+                    <span>Consultas</span>
+                </div>
+            </nav>
+        </aside>
+        <main>
+            <div class="breadcrumbs">
+                Você está aqui > Página Inicial > <span>Solicitações</span>
+            </div>
+            <div class="actions">
+                <button class="btn" id="addBtn">Adicionar</button>
+                <button class="btn export">Exportar</button>
+                <div class="search-filter">
+                    <button class="btn filter">Filtrar</button>
+                    <input type="text" id="searchInput" class="search" placeholder="Buscar na tabela">
+                </div>
+            </div>
+            <div class="form-container" id="formContainer">
+                <h3>Adicionar Nova Solicitação</h3>
+                <form id="addForm">
+                    <label for="companyName">Nome da Empresa:</label>
+                    <input type="text" id="companyName" required><br>
+
+                    <label for="description">Descrição:</label>
+                    <input type="text" id="description"><br>
+
+                    <label for="estimatedValue">Valor Estimado:</label>
+                    <input type="text" id="estimatedValue" required><br>
+
+                    <label for="situation">Situação:</label>
+                    <input type="text" id="situation" placeholder="Exemplo: Em andamento, Realizada, Pausada" required><br>
+
+                    <button type="submit" class="submit">Enviar</button>
+                    <button type="button" class="cancel" id="cancelBtn">Voltar</button>
+                </form>
+            </div>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Empresa</th>
+                        <th>ID Som</th>
+                        <th>Valor Estimado</th>
+                        <th>Data da Obra</th>
+                        <th>Descrição</th>
+                        <th>Situação</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+            <div id="noResults" class="no-results" style="display: none;">
+                Pesquisa não encontrada
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function loadTableData() {
+    const data = JSON.parse(localStorage.getItem('tableData')) || [];
+    const tableBody = document.getElementById('tableBody');
+    tableBody.innerHTML = ''; 
+    data.forEach((item) => {
+        const row = document.createElement('tr');
+        row.setAttribute('data-id', item.id); 
+        row.innerHTML = `
+            <td>${item.companyName}</td>
+            <td>${item.id}</td>
+            <td>R$${item.estimatedValue}</td>
+            <td>${item.dateOfWork}</td>
+            <td>${item.description}</td>
+            <td>${item.situation}</td>
+            <td class="action-btns">
+                <button class="edit-btn">Editar</button>
+                <button class="delete-btn">Excluir</button>
+            </td>
+        `;
+        tableBody.appendChild(row);
+    });
+}
+        function saveTableData(data) {
+            localStorage.setItem('tableData', JSON.stringify(data));
+        }
+
+        document.getElementById('addBtn').addEventListener('click', function () {
+            document.getElementById('formContainer').style.display = 'block';
+            document.getElementById('addForm').reset(); 
+        });
+        
+        document.getElementById('cancelBtn').addEventListener('click', function () {
+            document.getElementById('formContainer').style.display = 'none';
+        });
+
+        document.getElementById('addForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const companyName = document.getElementById('companyName').value;
+            const description = document.getElementById('description').value || 'Sem descrição';
+            const estimatedValue = document.getElementById('estimatedValue').value || '0,00';
+            const situation = document.getElementById('situation').value;
+
+            if (!companyName || !situation || !estimatedValue) {
+                alert("Nome da empresa, situação e valor estimado são obrigatórios!");
+                return;
+            }
+
+            const rows = document.querySelectorAll('.table tbody tr');
+            const newId = rows.length + 1;
+
+            const dateOfWork = new Date().toLocaleDateString('pt-BR'); 
+
+            const newRow = document.createElement('tr');
+            newRow.setAttribute('data-id', newId);
+            newRow.innerHTML = `
+                <td>${companyName}</td>
+                <td>${newId}</td>
+                <td>R$${estimatedValue}</td>
+                <td>${dateOfWork}</td>
+                <td>${description}</td>
+                <td>${situation}</td>
+                <td class="action-btns">
+                    <button class="edit-btn">Editar</button>
+                    <button class="delete-btn">Excluir</button>
+                </td>
+            `;
+            document.querySelector('.table tbody').appendChild(newRow);
+
+            const tableData = JSON.parse(localStorage.getItem('tableData')) || [];
+            tableData.push({
+                companyName,
+                id: newId,
+                dateOfWork,
+                description,
+                situation,
+                estimatedValue
+            });
+            saveTableData(tableData);
+
+            document.getElementById('formContainer').style.display = 'none';
+        });
+
+document.querySelector('.table').addEventListener('click', function (event) {
+    if (event.target.classList.contains('edit-btn')) {
+        const row = event.target.closest('tr');
+        const cells = row.querySelectorAll('td');
+
+        document.getElementById('formContainer').style.display = 'block';
+        document.getElementById('companyName').value = cells[0].textContent;
+        document.getElementById('description').value = cells[4].textContent;
+        document.getElementById('estimatedValue').value = cells[2].textContent.replace('R$', '').trim();
+        document.getElementById('situation').value = cells[5].textContent;
+
+        const addForm = document.getElementById('addForm');
+        addForm.onsubmit = null; 
+        addForm.onsubmit = function (e) {
+            e.preventDefault();
+
+            cells[0].textContent = document.getElementById('companyName').value;
+            cells[4].textContent = document.getElementById('description').value;
+            cells[2].textContent = `R$${document.getElementById('estimatedValue').value}`;
+            cells[5].textContent = document.getElementById('situation').value;
+
+            const tableData = JSON.parse(localStorage.getItem('tableData')) || [];
+            const rowId = row.getAttribute('data-id');
+            const index = tableData.findIndex(item => item.id == rowId);
+            if (index !== -1) {
+                tableData[index].companyName = document.getElementById('companyName').value;
+                tableData[index].description = document.getElementById('description').value;
+                tableData[index].estimatedValue = document.getElementById('estimatedValue').value;
+                tableData[index].situation = document.getElementById('situation').value;
+            }
+            saveTableData(tableData);
+
+            document.getElementById('formContainer').style.display = 'none';
+        };
+    }
+
+    if (event.target.classList.contains('delete-btn')) {
+        const row = event.target.closest('tr');
+        row.remove();
+
+        const tableData = JSON.parse(localStorage.getItem('tableData')) || [];
+        const rowId = row.getAttribute('data-id');
+        const newTableData = tableData.filter(item => item.id != rowId);
+        saveTableData(newTableData);
+    }
+});
+        loadTableData();
+    </script>
+</body>
+</html>
+<script>
+    function loadTableData() {
+        const data = JSON.parse(localStorage.getItem('tableData')) || [];
+        const tableBody = document.getElementById('tableBody');
+        tableBody.innerHTML = ''; 
+        data.forEach((item) => {
+            const row = document.createElement('tr');
+            row.setAttribute('data-id', item.id); 
+            row.innerHTML = `
+                <td>${item.companyName}</td>
+                <td>${item.id}</td>
+                <td>R$${item.estimatedValue}</td>
+                <td>${item.dateOfWork}</td>
+                <td>${item.description}</td>
+                <td>${item.situation}</td>
+                <td class="action-btns">
+                    <button class="edit-btn">Editar</button>
+                    <button class="delete-btn">Excluir</button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+
+    function saveTableData(data) {
+        localStorage.setItem('tableData', JSON.stringify(data));
+    }
+
+    document.getElementById('searchInput').addEventListener('input', function () {
+        const searchText = this.value.toLowerCase();
+        const tableRows = document.querySelectorAll('.table tbody tr');
+        const noResults = document.getElementById('noResults');
+        let hasResults = false;
+
+        tableRows.forEach(row => {
+            const companyName = row.cells[0].textContent.toLowerCase(); 
+            const idSom = row.cells[1].textContent.toLowerCase();       
+
+            if (companyName.includes(searchText) || idSom.includes(searchText)) {
+                row.style.display = '';
+                hasResults = true;
+            } else {
+                row.style.display = 'none';
+            }
+        });
+
+        if (hasResults) {
+            noResults.style.display = 'none';
+        } else {
+            noResults.style.display = 'block';
+        }
+    });
+
+    
+    loadTableData();
+</script>
+<script>
+    document.querySelector('.export').addEventListener('click', function () {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+
+        const table = document.querySelector('.table');
+        const rows = Array.from(table.querySelectorAll('tbody tr'));
+
+        const columns = ['Empresa', 'ID Som', 'Valor Estimado', 'Data da Obra', 'Descrição', 'Situação'];
+
+        const data = rows.map(row => {
+            return Array.from(row.cells).map(cell => cell.textContent);
+        });
+
+        doc.autoTable({
+            head: [columns],  
+            body: data,       
+            startY: 20,       
+            theme: 'grid',
+            headStyles: { fillColor: [0, 51, 102] }, 
+            styles: { fontSize: 10 },  
+            columnStyles: { 0: { cellWidth: 30 }, 1: { cellWidth: 20 }, 2: { cellWidth: 30 }, 3: { cellWidth: 30 }, 4: { cellWidth: 50 }, 5: { cellWidth: 30 } } 
+        });
+
+        doc.save('relatorio.pdf');
+    });
+</script>
